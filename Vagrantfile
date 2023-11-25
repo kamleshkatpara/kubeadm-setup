@@ -1,34 +1,35 @@
 Vagrant.configure("2") do |config|
+
+  base_ip = "10.0.0."
+
+  config.vm.box = "bento/ubuntu-22.04"
+
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update -y
-    echo "10.0.0.10  master-node" >> /etc/hosts
-    echo "10.0.0.11  worker-node01" >> /etc/hosts
-    echo "10.0.0.12  worker-node02" >> /etc/hosts
+    #{(0..2).map { |i| "echo \"#{base_ip}1#{i}  kubenode0#{i}\"" }.join("\n")}
   SHELL
 
-  config.vm.define "master" do |master|
-    master.vm.provider "virtualbox" do |vb|
-      vb.name = "master"
-      vb.memory = 4048
+  config.vm.define "kubemaster" do |node|
+    node.vm.provider "virtualbox" do |vb|
+      vb.name = "kubemaster"
+      vb.memory = 2048
       vb.cpus = 2
     end
-    master.vm.box = "bento/ubuntu-22.04"
-    master.vm.hostname = "master-node"
-    master.vm.network "private_network", ip: "10.0.0.10"
-    master.vm.network "public_network"
+    node.vm.hostname = "kubemaster"
+    node.vm.network "private_network", ip: "#{base_ip}10"
+    node.vm.network "public_network", type: "dhcp", auto_correct: true
   end
 
   (1..2).each do |i|
-    config.vm.define "node0#{i}" do |node|
+    config.vm.define "kubenode0#{i}" do |node|
       node.vm.provider "virtualbox" do |vm|
-        vm.name = "worker-node0#{i}"
-        vm.memory = 2048
+        vm.name = "kubenode0#{i}"
+        vm.memory = 1024
         vm.cpus = 1
       end
-      node.vm.box = "bento/ubuntu-22.04"
-      node.vm.hostname = "worker-node0#{i}"
-      node.vm.network "private_network", ip: "10.0.0.1#{i}"
-      node.vm.network "public_network"
+      node.vm.hostname = "kubenode0#{i}"
+      node.vm.network "private_network", ip: "#{base_ip}1#{i}"
+      node.vm.network "public_network", type: "dhcp", auto_correct: true
     end
   end
 end
