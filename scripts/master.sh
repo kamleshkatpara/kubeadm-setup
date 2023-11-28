@@ -19,7 +19,7 @@ log "Starting script..."
 PUBLIC_IP_ACCESS="false"
 NODENAME=$(hostname -s)
 POD_CIDR="192.168.0.0/16"
-PRIMARY_INTERFACE="enp0s8"
+PRIMARY_INTERFACE="eth01"
 
 # Pull required images
 
@@ -43,7 +43,9 @@ else
 fi
 
 mkdir -p "$HOME"/.kube
+
 sudo cp -i /etc/kubernetes/admin.conf "$HOME"/.kube/config
+
 sudo chown "$(id -u)":"$(id -g)" "$HOME"/.kube/config
 
 sudo kubectl get node -o wide
@@ -59,6 +61,8 @@ kubectl create -f custom-resources.yaml
 kubectl get pods -n calico-system
 
 echo 'Join Nodes'
+
 sudo kubectl label node kubenode01 node-role.kubernetes.io/worker=worker
+
 sudo kubectl label node kubenode02 node-role.kubernetes.io/worker=worker
 
