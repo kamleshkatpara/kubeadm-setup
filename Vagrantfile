@@ -5,9 +5,9 @@ Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/jammy64"
 
   config.vm.provision "shell", inline: <<-SHELL
-    apt-get update -y
-    echo "#{base_ip}10  kubemaster" >> /etc/hosts
-    #{(0..2).map { |i| "echo \"#{base_ip}1#{i}  kubenode0#{i}\" >> /etc/hosts" }.join("\n")}
+    echo "10.0.0.10  kubemaster" >> /etc/hosts
+    echo "10.0.0.11  kubenode01" >> /etc/hosts
+    echo "10.0.0.12  kubenode02" >> /etc/hosts
   SHELL
 
   config.vm.define "kubemaster" do |node|
